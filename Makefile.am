@@ -1,2 +1,3 @@
+AUTOMAKE_OPTIONS=foreign
 SUBDIRS=src
-EXTRA_DIST=src/msstats.1
+EXTRA_DIST=src/msstats.1 README.md
