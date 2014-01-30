@@ -37,3 +37,33 @@ positions: 0.1 0.9
 10
 
 The above is for 2 "SNPs" in a sample of size n = 2
+
+#Installation
+
+./configure
+
+make
+
+sudo make install
+
+##If dependent libraries are in non-standard locations.  For example, "/opt":
+
+CXXFLAGS=-I/opt/include LDFLAGS="$LDFLAGS -L/opt/lib" ./configure
+
+make 
+
+sudo make install
+
+##Installing somewhere other than /usr/local/bin
+
+./configure --prefix=/path/to/where/you/want/it
+
+For example,
+
+./configure --prefix=$HOME
+
+make 
+
+make install
+
+will result in msstats being in ~/bin.
