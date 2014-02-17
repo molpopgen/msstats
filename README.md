@@ -67,3 +67,29 @@ make
 make install
 
 will result in msstats being in ~/bin.
+
+##Notes on calculations for metapopulations.
+
+If the input data contain ordered samples from multiple demes, you may pass that info to _msstats_ as follows:
+
+-I D n0 n1 ... nD,
+
+where D is the number of demes.
+
+When -I is used, summary statistics will be calculated for each deme within each replicate.  The columns "rep" and "pop" will tell you which deme in which replicate each statistic corresponds to.
+
+The program will exit with an error if the sum of deme sizes does not equal the input sample size read from STDIN.
+
+When the -I option is used, _msstats_ will report Hudson, Slatkin, and Maddison's Fst statistic.  The reference for this statistic is:
+
+Hudson, Slatkin and Maddison (1992) Estimation of levels of gene flow from population data. Genetics 132:583-589
+
+For all pairwise comparisions amongst the D demes, you will see output columns with headers hsmij, which is the Fst statistic calculated between demes _i_ and _j_.  These numbers will be repeated for each deme within each replicate.  Thus, to get the actual distribution of Fst for a simulation, you should condition on the line of results for just one population.  For example:
+
+ms 30 100 -t 10 -I 3 10 10 10 1 | ./src/msstats -I 3 10 10 10 > output<br>
+
+Then, using __R__,
+
+> x=read.table("output",header=T)<br>
+> mean(x$hsm01[x$pop==0])<br>
+[1] 0.3511204<br>
