@@ -30,11 +30,11 @@ Comments are welcome.
 
 This format looks like this:
 
-//
-segsites: 2
-positions: 0.1 0.9
-01
-10
+//<br>
+segsites: 2<br>
+positions: 0.1 0.9<br>
+01<br>
+10<br>
 
 The above is for 2 "SNPs" in a sample of size n = 2
 
