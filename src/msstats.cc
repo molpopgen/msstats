@@ -20,6 +20,7 @@
 */
 
 #include <iostream>
+#include <sstream>
 #include <vector>
 #include <cstdio>
 #include <numeric>
@@ -30,6 +31,7 @@
 #include <Sequence/SeqConstants.hpp>
 #include <Sequence/PolyTableFunctions.hpp>
 #include <Sequence/Recombination.hpp>
+#include <Sequence/FST.hpp>
 #include <otherstats.hpp>
 
 using namespace std;
@@ -90,8 +92,21 @@ int main(int argc, char *argv[])
 	    << "wallq\t"
 	    << "rosasrf\t"
 	    << "rosasru\t"
-	    << "zns"
-	    << endl;
+	    << "zns";
+  //Add header info for FST
+  if (! config.empty() )
+    {
+      cout << '\t';
+      for( unsigned i = 0 ; i < config.size()-1 ; ++i )
+	{
+	  for( unsigned j = i + 1 ; j < config.size() ; ++j )
+	    {
+	      std::cout << "hsm" << i << j << '\t';
+	    }
+	}
+    }
+  std::cout << endl;
+
   int rv;
   int rep=0;
 
@@ -111,16 +126,51 @@ int main(int argc, char *argv[])
 	    }
 	  */
 	  int sum = 0;
+
+	  //Calculate FST
+	  ostringstream fstout;
+	  if(! config.empty() )
+	    {
+	      for( unsigned i = 0 ; i < config.size()-1 ; ++i )
+		{
+		  for( unsigned j = i+1 ; j < config.size() ; ++j )
+		    {
+		      std::vector<polymorphicSite> demeData;
+		      unsigned offset1 = std::accumulate(config.begin(),config.begin()+i,0u);
+		      unsigned offset2 = std::accumulate(config.begin(),config.begin()+j,0u);
+
+		      for( SimData::const_site_iterator sitr = d.sbegin() ; sitr != d.send() ; ++sitr )
+			{
+			  string data( string( sitr->second.begin()+offset1, sitr->second.begin()+offset1+config[i] ) + 
+				       string( sitr->second.begin()+offset2, sitr->second.begin()+offset2+config[j] ) );
+			  demeData.push_back( make_pair(sitr->first,data) );
+			}
+		      SimData demeij(demeData.begin(),demeData.end());
+		      unsigned configij[2];
+		      configij[0]=config[i];
+		      configij[1]=config[j];
+		      FST fst(&demeij,2,configij);
+		      fstout << fst.HSM() << '\t';
+		    }
+		}
+	    }
 	  for(int i = 0 ; i < config.size() ; ++i)
 	    {
 	      SimData d2;
 	      if(!d.empty())
-		d2.assign(&*d.pbegin(),d.numsites(),
-			  &d[sum],config[i]);
+		{
+		  d2.assign(&*d.pbegin(),d.numsites(),
+			    &d[sum],config[i]);
+		}
 	      sum += config[i];
 	      RemoveInvariantColumns(&d2);
 	      cout << rep << '\t' << i << '\t';
 	      calcstats(d2,mincount);
+	      if( !fstout.str().empty() )
+		{
+		  cout << '\t' << fstout.str();
+		}
+	      cout << endl;
 	    }
 	}
       ++rep;
@@ -200,5 +250,4 @@ void calcstats(const SimData & d, const unsigned & mincount)
     {
       cout << strtod("NAN",NULL);
     }
-  cout << endl;
 }
