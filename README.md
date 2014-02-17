@@ -74,7 +74,7 @@ If the input data contain ordered samples from multiple demes, you may pass that
 
 -I D n0 n1 ... nD,
 
-where D is the number of demes.
+where D is the number of demes and n0 is the sample size in the first deme, etc.
 
 When -I is used, summary statistics will be calculated for each deme within each replicate.  The columns "rep" and "pop" will tell you which deme in which replicate each statistic corresponds to.
 
