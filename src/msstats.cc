@@ -55,11 +55,13 @@ int main(int argc, char *argv[])
 	      config.push_back(atoi(argv[++arg]));
 	    }
 	}
+
       else if (string(argv[arg]) == "-m")
 	{
 	  mincount = atoi(argv[++arg]);
 	}
     }
+  unsigned configSUM = accumulate(config.begin(),config.end(),0u);
   int total = std::accumulate(config.begin(),config.end(),0,plus<int>());
   SimParams p;
   p.fromfile(stdin);
@@ -112,6 +114,12 @@ int main(int argc, char *argv[])
 
   while( (rv=d.fromfile(stdin)) != EOF )
     {
+      if(!config.empty() && d.size() != configSUM)
+	{
+	  cerr << "error: input sample size does not equal sum of deme sizes\n";
+	  exit(10);
+	}
+
       if(!multipop)
 	{
 	  calcstats(d,mincount);
@@ -228,23 +236,6 @@ void calcstats(const SimData & d, const unsigned & mincount)
 	{
 	  cout << zns ;//<< '\n';
 	}
-	/*
-	  vector< vector<double> > ld = P.Disequilibrium(mincount);
-	  if(ld.empty()) //no sites made the mincount cutoff
-	  {
-	  cout << "nan\n";
-	  }
-	  else
-	  {
-	  double zns = 0.;
-	  for(unsigned i=0;i<ld.size();++i)
-	  {
-	  zns += ld[i][2];
-	  }
-	  zns /= double(ld.size());
-	  cout << zns ;
-	  }
-	*/
     }
   else 
     {
