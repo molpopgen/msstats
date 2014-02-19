@@ -123,6 +123,7 @@ int main(int argc, char *argv[])
       if(!multipop)
 	{
 	  calcstats(d,mincount);
+	  cout << endl;
 	}
       else
 	{
@@ -182,7 +183,7 @@ int main(int argc, char *argv[])
 	    }
 	}
       ++rep;
-    } 
+    }
 }
 
 void calcstats(const SimData & d, const unsigned & mincount)
