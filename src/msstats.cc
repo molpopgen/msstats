@@ -37,7 +37,7 @@
 using namespace std;
 using namespace Sequence;
 
-void calcstats(const SimData & d, const unsigned & mincount);
+void calcstats(const SimData & d, const unsigned & mincount, bool multipop);
 
 int main(int argc, char *argv[]) 
 {
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
 
       if(!multipop)
 	{
-	  calcstats(d,mincount);
+	  calcstats(d,mincount, multipop);
 	}
       else
 	{
@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
 	      sum += config[i];
 	      RemoveInvariantColumns(&d2);
 	      cout << rep << '\t' << i << '\t';
-	      calcstats(d2,mincount);
+	      calcstats(d2,mincount, multipop);
 	      if( !fstout.str().empty() )
 		{
 		  cout << '\t' << fstout.str();
@@ -185,7 +185,7 @@ int main(int argc, char *argv[])
     } 
 }
 
-void calcstats(const SimData & d, const unsigned & mincount)
+void calcstats(const SimData & d, const unsigned & mincount, bool multipop)
 {
   PolySIM P(&d);
 
@@ -234,7 +234,9 @@ void calcstats(const SimData & d, const unsigned & mincount)
 	}
       else
 	{
-	  cout << zns ;//<< '\n';
+	  cout << zns ;
+	  if(!multipop)
+		cout << '\n';
 	}
     }
   else 
