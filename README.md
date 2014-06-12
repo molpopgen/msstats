@@ -93,3 +93,31 @@ Then, using __R__,
 > x=read.table("output",header=T)<br>
 > mean(x$hsm01[x$pop==0])<br>
 [1] 0.3511204<br>
+
+#The output
+
+##For a single population
+
+There are 21 columns in the output:
+
+1. S = the number of "segregating sites", aka mutations. ([Watterson, 1975](http://www.ncbi.nlm.nih.gov/pubmed/1145509))
+2. n1 = the number of singletons in the data.  This is the number of mutations at frequency 1 and n-1 in the sample.
+3. next = the number of "external mutations" (sensu [Fu](http://www.ncbi.nlm.nih.gov/pubmed/7482370)) = the number of derived singletons.
+4. theta = [Watterson's](http://www.ncbi.nlm.nih.gov/pubmed/1145509) estimate of theta
+5. pi = "sum of site heterogzygosity" = sum of 2pq over the S sites. (Nei, [Tajima](http://www.genetics.org/content/105/2/437.abstract), others).
+6. thetaH = [Fay and Wu's](http://www.genetics.org/content/155/3/1405.abstract) estimator of theta.  Their H statistic is pi - thetaH, hence no column for it.
+7. Hprime = [Zeng et al.'s](http://www.genetics.org/content/174/3/1431.abstract) normalized Fay and Wu's H.  
+8. tajd = [Tajima's D](http://www.genetics.org/content/123/3/585.abstract)
+9. fulif = [Fu and Li's](http://www.genetics.org/content/133/3/693.abstract) F
+10. fulid = [Fu and Li's](http://www.genetics.org/content/133/3/693.abstract) D
+11. fulifs = [Fu and Li's](http://www.genetics.org/content/133/3/693.abstract) F-star
+12. fulifds = [Fu and Li's](http://www.genetics.org/content/133/3/693.abstract) D-star
+13. rm = [Hudson and Kaplan's](http://www.genetics.org/content/111/1/147.abstract) Rmin 
+14. rmmg = [Myers and Griffiths](http://www.ncbi.nlm.nih.gov/pubmed/12586723) simplest lowest bound on Rmin
+15. nhap = Number of distinct haplotypes. [Depaulis and Veuille](http://mbe.oxfordjournals.org/content/15/12/1788)
+16. hdiv = haplotype diversity. [Depaulis and Veuille](http://mbe.oxfordjournals.org/content/15/12/1788)
+17. wallB = [Jeff Wall's](http://journals.cambridge.org/action/displayAbstract) B
+18. wallQ = [Jeff Wall's](http://journals.cambridge.org/action/displayAbstract) Q
+19. rosarf = [Ramos-Onsins and Rozas](http://mbe.oxfordjournals.org/content/19/12/2092) Rf statistic
+20. rosarf = [Ramos-Onsins and Rozas](http://mbe.oxfordjournals.org/content/19/12/2092) Ru statistic
+21. zns = [Kelly's](http://www.genetics.org/content/146/3/1197) Zns = average pairwise r-squared.

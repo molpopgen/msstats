@@ -7,7 +7,7 @@ using namespace Sequence;
 
 std::pair<double,double> RozasR(const SimData & matrix, const double & thetapi, const unsigned & segsites ) 
 /*
-  Ramon-Osnin & Rozas' (2005, MBE 19: 2092) R2 and R2E statistics, returned in that order in a pair.
+  Ramon-Osnin & Rozas' (2002, MBE 19: 2092) R2 and R2E statistics, returned in that order in a pair.
 */
 {
   if(segsites == 0) return std::make_pair(strtod("NAN",NULL),strtod("NAN",NULL));
