@@ -1,3 +1,4 @@
 AUTOMAKE_OPTIONS=foreign
 SUBDIRS=src
 EXTRA_DIST=src/msstats.1 README.md
+ACLOCAL_AMFLAGS = -I m4
