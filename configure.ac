@@ -1,6 +1,6 @@
 AC_PREREQ(2.59)
 
-AC_INIT(msstats, [0.3.5], [https://github.com/molpopgen/sweepsims])
+AC_INIT(msstats, [0.3.5], [https://github.com/molpopgen/msstats])
 AC_CONFIG_SRCDIR([src/msstats.cc])
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([config-h.in])
@@ -12,7 +12,7 @@ AC_C_CONST
 AC_PROG_CXX
 AX_CXX_COMPILE_STDCXX_11([noext],[mandatory])
 
-AM_MAINTAINER_MODE([enable])
+AM_MAINTAINER_MODE([disable])
 
 AC_LANG(C++)
 AC_CONFIG_FILES([Makefile src/Makefile])
