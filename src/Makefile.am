@@ -2,7 +2,7 @@ bin_PROGRAMS=msstats mssfs
 msstats_SOURCES=msstats.cc otherstats.cc otherstats.hpp 
 mssfs_SOURCES=mssfs.cc
 AM_CXXFLAGS=-DNDEBUG -O3 -Wall -W
-INCLUDES=-I$(prefix)/include
+AM_CPPFLAGS=-I$(prefix)/include
 #  uncomment the following if msstats requires the math library
 #msstats_LDADD=-lm
 
