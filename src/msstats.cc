@@ -168,11 +168,10 @@ int main(int argc, char *argv[])
 	      SimData d2;
 	      if(!d.empty())
 		{
-		  d2.assign(&*d.pbegin(),d.numsites(),
-			    &d[sum],config[i]);
+		  d2.assign(d.GetPositions(),d.GetData());
 		}
 	      sum += config[i];
-	      RemoveInvariantColumns(&d2);
+	      removeInvariantPos(d2);
 	      cout << rep << '\t' << i << '\t';
 	      calcstats(d2,mincount);
 	      if( !fstout.str().empty() )
