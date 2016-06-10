@@ -234,10 +234,8 @@ std::string process_input(const SimData & d,
 	  SimData d2;
 	  if(!d.empty())
 	    {
-	      //This is wrong/undesired
-	      d2.assign(d.GetPositions(),d.GetData());
+	      d2.assign(d.GetPositions(),std::vector<string>(d.begin()+sum,d.begin()+sum+config[i]));
 	    }
-	  sum += config[i];
 	  removeInvariantPos(d2);
 	  buffer << rep << '\t' << i << '\t';
 	  buffer << calcstats(d2,mincount);
