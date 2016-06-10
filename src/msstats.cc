@@ -37,7 +37,12 @@
 using namespace std;
 using namespace Sequence;
 
-void calcstats(const SimData & d, const unsigned & mincount);
+std::string calcstats(const SimData & d, const unsigned & mincount);
+std::string process_input(const SimData & d, 
+			  const std::vector<int> & config,
+			  const int mincount,
+			  const bool multipop,
+			  int & rep);
 
 int main(int argc, char *argv[]) 
 {
@@ -62,7 +67,6 @@ int main(int argc, char *argv[])
 	}
     }
   unsigned configSUM = accumulate(config.begin(),config.end(),0u);
-  int total = std::accumulate(config.begin(),config.end(),0,plus<int>());
   SimParams p;
   p.fromfile(stdin);
   SimData d;
@@ -119,98 +123,36 @@ int main(int argc, char *argv[])
 	  cerr << "error: input sample size does not equal sum of deme sizes\n";
 	  exit(10);
 	}
-
-      if(!multipop)
-	{
-	  calcstats(d,mincount);
-	  cout << endl;
-	}
-      else
-	{
-	  /*
-	  if(d.size() != total)
-	    {
-	      std::cerr << "oh crap\n";
-	      exit(10);
-	    }
-	  */
-	  int sum = 0;
-
-	  //Calculate FST
-	  ostringstream fstout;
-	  if(! config.empty() )
-	    {
-	      for( unsigned i = 0 ; i < config.size()-1 ; ++i )
-		{
-		  for( unsigned j = i+1 ; j < config.size() ; ++j )
-		    {
-		      std::vector<polymorphicSite> demeData;
-		      unsigned offset1 = std::accumulate(config.begin(),config.begin()+i,0u);
-		      unsigned offset2 = std::accumulate(config.begin(),config.begin()+j,0u);
-
-		      for( SimData::const_site_iterator sitr = d.sbegin() ; sitr != d.send() ; ++sitr )
-			{
-			  string data( string( sitr->second.begin()+offset1, sitr->second.begin()+offset1+config[i] ) + 
-				       string( sitr->second.begin()+offset2, sitr->second.begin()+offset2+config[j] ) );
-			  demeData.push_back( make_pair(sitr->first,data) );
-			}
-		      SimData demeij(demeData.begin(),demeData.end());
-		      unsigned configij[2];
-		      configij[0]=config[i];
-		      configij[1]=config[j];
-		      FST fst(&demeij,2,configij);
-		      fstout << fst.HSM() << '\t';
-		    }
-		}
-	    }
-	  for(int i = 0 ; i < config.size() ; ++i)
-	    {
-	      SimData d2;
-	      if(!d.empty())
-		{
-		  d2.assign(d.GetPositions(),d.GetData());
-		}
-	      sum += config[i];
-	      removeInvariantPos(d2);
-	      cout << rep << '\t' << i << '\t';
-	      calcstats(d2,mincount);
-	      if( !fstout.str().empty() )
-		{
-		  cout << '\t' << fstout.str();
-		}
-	      cout << endl;
-	    }
-	}
-      ++rep;
+      std::cout << process_input(d,config,mincount,multipop,rep);
     }
 }
 
-void calcstats(const SimData & d, const unsigned & mincount)
+std::string calcstats(const SimData & d, const unsigned & mincount)
 {
   PolySIM P(&d);
-
-  cout << P.NumPoly()   << '\t' 
-       << P.NumSingletons() << '\t'
-       << P.NumExternalMutations() << '\t'
-       << P.ThetaW()    << '\t' 
-       << P.ThetaPi()   << '\t'
-       << P.ThetaH()    << '\t' 
-       << P.Hprime()    << '\t'
-       << P.TajimasD()  << '\t'
-       << P.FuLiF()     << '\t'
-       << P.FuLiD()     << '\t'
-       << P.FuLiFStar() << '\t'
-       << P.FuLiDStar() << '\t';
+  std::ostringstream buffer;
+  buffer << P.NumPoly()   << '\t' 
+	 << P.NumSingletons() << '\t'
+	 << P.NumExternalMutations() << '\t'
+	 << P.ThetaW()    << '\t' 
+	 << P.ThetaPi()   << '\t'
+	 << P.ThetaH()    << '\t' 
+	 << P.Hprime()    << '\t'
+	 << P.TajimasD()  << '\t'
+	 << P.FuLiF()     << '\t'
+	 << P.FuLiD()     << '\t'
+	 << P.FuLiFStar() << '\t'
+	 << P.FuLiDStar() << '\t';
   unsigned rm = P.Minrec(),nhaps=P.DandVK();
-  cout << ((rm != SEQMAXUNSIGNED) ? rm : strtod("NAN",NULL)) << '\t'
-       << Rm_MG(d,P.NumPoly(),nhaps) << '\t'
-       << nhaps    << '\t'
-       << P.DandVH()    << '\t'
-       << P.WallsB()    << '\t'
-       << P.WallsQ()    << '\t';
+  buffer << ((rm != SEQMAXUNSIGNED) ? rm : strtod("NAN",NULL)) << '\t'
+	 << Rm_MG(d,P.NumPoly(),nhaps) << '\t'
+	 << nhaps    << '\t'
+	 << P.DandVH()    << '\t'
+	 << P.WallsB()    << '\t'
+	 << P.WallsQ()    << '\t';
   pair<double,double> r2 = RozasR(d,P.ThetaPi(),P.NumPoly());
-  cout << r2.first << '\t'
-       << r2.second << '\t';
+  buffer << r2.first << '\t'
+	 << r2.second << '\t';
   if(d.numsites() > 1)
     {
       unsigned site1=0,site2=1;
@@ -230,15 +172,82 @@ void calcstats(const SimData & d, const unsigned & mincount)
       zns /= double(npairsLD);
       if( allskipped )
 	{
-	  cout << strtod("NAN",NULL) ;//<< "\n";
+	  buffer << strtod("NAN",NULL) ;//<< "\n";
 	}
       else
 	{
-	  cout << zns ;//<< '\n';
+	  buffer << zns ;//<< '\n';
 	}
     }
   else 
     {
-      cout << strtod("NAN",NULL);
+      buffer << strtod("NAN",NULL);
     }
+  return buffer.str();
+}
+
+std::string process_input(const SimData & d, 
+			  const std::vector<int> & config,
+			  const int mincount,
+			  const bool multipop,
+			  int & rep)
+{
+  std::ostringstream buffer;
+  if(!multipop)
+    {
+      buffer << calcstats(d,mincount);
+      buffer << endl;
+    }
+  else
+    {
+      int sum = 0;
+
+      //Calculate FST
+      ostringstream fstout;
+      if(! config.empty() )
+	{
+	  for( unsigned i = 0 ; i < config.size()-1 ; ++i )
+	    {
+	      for( unsigned j = i+1 ; j < config.size() ; ++j )
+		{
+		  std::vector<polymorphicSite> demeData;
+		  unsigned offset1 = std::accumulate(config.begin(),config.begin()+i,0u);
+		  unsigned offset2 = std::accumulate(config.begin(),config.begin()+j,0u);
+
+		  for( SimData::const_site_iterator sitr = d.sbegin() ; sitr != d.send() ; ++sitr )
+		    {
+		      string data( string( sitr->second.begin()+offset1, sitr->second.begin()+offset1+config[i] ) + 
+				   string( sitr->second.begin()+offset2, sitr->second.begin()+offset2+config[j] ) );
+		      demeData.push_back( make_pair(sitr->first,data) );
+		    }
+		  SimData demeij(demeData.begin(),demeData.end());
+		  unsigned configij[2];
+		  configij[0]=config[i];
+		  configij[1]=config[j];
+		  FST fst(&demeij,2,configij);
+		  fstout << fst.HSM() << '\t';
+		}
+	    }
+	}
+      for(std::size_t i = 0 ; i < config.size() ; ++i)
+	{
+	  SimData d2;
+	  if(!d.empty())
+	    {
+	      //This is wrong/undesired
+	      d2.assign(d.GetPositions(),d.GetData());
+	    }
+	  sum += config[i];
+	  removeInvariantPos(d2);
+	  buffer << rep << '\t' << i << '\t';
+	  buffer << calcstats(d2,mincount);
+	  if( !fstout.str().empty() )
+	    {
+	      buffer << '\t' << fstout.str();
+	    }
+	  buffer << endl;
+	}
+    }
+  ++rep;
+  return buffer.str();
 }
