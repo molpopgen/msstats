@@ -25,6 +25,7 @@
 #include <cstdio>
 #include <numeric>
 #include <utility>
+#include <limits>
 #include <Sequence/SimParams.hpp>
 #include <Sequence/SimData.hpp>
 #include <Sequence/PolySIM.hpp>
@@ -33,7 +34,8 @@
 #include <Sequence/Recombination.hpp>
 #include <Sequence/FST.hpp>
 #include <otherstats.hpp>
-
+#include <tbb/parallel_invoke.h>
+#include <tbb/task_scheduler_init.h>
 using namespace std;
 using namespace Sequence;
 
@@ -47,6 +49,7 @@ main(int argc, char *argv[])
     std::vector<int> config;
     bool multipop = false;
     int mincount = 1;
+    int nthreads = -1;
     for (int arg = 1; arg < argc; ++arg)
         {
             if (string(argv[arg]) == "-I")
@@ -58,12 +61,16 @@ main(int argc, char *argv[])
                             config.push_back(atoi(argv[++arg]));
                         }
                 }
-
             else if (string(argv[arg]) == "-m")
                 {
                     mincount = atoi(argv[++arg]);
                 }
+            else if (string(argv[arg]) == "-t")
+                {
+                    nthreads = atoi(argv[++arg]);
+                }
         }
+    tbb::task_scheduler_init init(nthreads);
     unsigned configSUM = accumulate(config.begin(), config.end(), 0u);
     SimParams p;
     p.fromfile(stdin);
@@ -131,20 +138,41 @@ calcstats(const SimData &d, const unsigned &mincount)
 {
     PolySIM P(&d);
     std::ostringstream buffer;
-    buffer << P.NumPoly() << '\t' << P.NumSingletons() << '\t'
-           << P.NumExternalMutations() << '\t' << P.ThetaW() << '\t'
-           << P.ThetaPi() << '\t' << P.ThetaH() << '\t' << P.Hprime() << '\t'
-           << P.TajimasD() << '\t' << P.FuLiF() << '\t' << P.FuLiD() << '\t'
-           << P.FuLiFStar() << '\t' << P.FuLiDStar() << '\t';
-    unsigned rm = P.Minrec(), nhaps = P.DandVK();
-    buffer << ((rm != SEQMAXUNSIGNED) ? rm : strtod("NAN", NULL)) << '\t'
-           << Rm_MG(d, P.NumPoly(), nhaps) << '\t' << nhaps << '\t'
-           << P.DandVH() << '\t' << P.WallsB() << '\t' << P.WallsQ() << '\t';
+    unsigned npoly, nsingle, nexternal, rm, nhaps;
+    double thetaw, thetapi, thetah, hprime, tajd, fulif, fulid, fulifstar,
+        fulidstar, dvh, wallb, wallq;
+    tbb::parallel_invoke(
+        [&npoly, &P] { npoly = P.NumPoly(); },
+        [&nsingle, &P] { nsingle = P.NumSingletons(); },
+        [&nexternal, &P] { nexternal = P.NumExternalMutations(); },
+        [&thetapi, &P] { thetapi = P.ThetaPi(); },
+        [&thetaw, &P] { thetaw = P.ThetaW(); },
+        [&thetah, &P] { thetah = P.ThetaH(); },
+        [&hprime, &P] { hprime = P.Hprime(); },
+        [&tajd, &P] { tajd = P.TajimasD(); },
+        [&fulid, &P] { fulid = P.FuLiD(); });
+    tbb::parallel_invoke(
+        [&fulif, &P] { fulif = P.FuLiF(); },
+        [&fulidstar, &P] { fulidstar = P.FuLiDStar(); },
+        [&fulifstar, &P] { fulifstar = P.FuLiFStar(); },
+        [&rm, &P] { rm = P.Minrec(); }, [&nhaps, &P] { nhaps = P.DandVK(); },
+        [&dvh, &P] { dvh = P.DandVH(); }, [&wallb, &P] { wallb = P.WallsB(); },
+        [&wallq, &P] { wallq = P.WallsQ(); });
+    buffer << npoly << '\t' << nsingle << '\t' << nexternal << '\t' << thetaw
+           << '\t' << thetapi << '\t' << thetah << '\t' << hprime << '\t'
+           << tajd << '\t' << fulif << '\t' << fulid << '\t' << fulifstar
+           << '\t' << fulidstar << '\t';
+    buffer << ((rm != SEQMAXUNSIGNED)
+                   ? rm
+                   : std::numeric_limits<double>::quiet_NaN())
+           << '\t' << Rm_MG(d, P.NumPoly(), nhaps) << '\t' << nhaps << '\t'
+           << dvh << '\t' << wallb << '\t' << wallq << '\t';
     pair<double, double> r2 = RozasR(d, P.ThetaPi(), P.NumPoly());
     buffer << r2.first << '\t' << r2.second << '\t';
     if (d.numsites() > 1)
         {
-            unsigned site1 = 0, site2 = 1;
+            /*
+                        unsigned site1 = 0, site2 = 1;
             vector<double> LDSTATS(6);
             bool allskipped = true;
             double zns = 0.;
@@ -160,10 +188,24 @@ calcstats(const SimData &d, const unsigned &mincount)
                             ++npairsLD;
                         }
                 }
-            zns /= double(npairsLD);
+                        */
+            double zns = 0.;
+            unsigned npairsLD = 0;
+            bool allskipped = true;
+            auto LD = P.Disequilibrium(mincount);
+            for (auto &&LDi : LD)
+                {
+                    if (!LDi.skipped) // not skipped
+                        {
+                            allskipped = false;
+                            zns += LDi.rsq;
+                            ++npairsLD;
+                        }
+                }
+            zns /= static_cast<double>(npairsLD);
             if (allskipped)
                 {
-                    buffer << strtod("NAN", NULL); //<< "\n";
+                    buffer << std::numeric_limits<double>::quiet_NaN(); //<< "\n";
                 }
             else
                 {
