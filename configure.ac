@@ -58,6 +58,7 @@ AC_LANG_SAVE
           AC_LANG_CPLUSPLUS
           AC_REQUIRE_CPP
 	  AC_CHECK_LIB(sequence, main,,[echo "libsequence runtime library does not seem to be here";exit 1])	
+	  AC_CHECK_LIB(tbb,main,,[AC_MSG_ERROR([tbb runtime library not found!])])
 AC_LANG_RESTORE
 dnl AM_CONFIG_HEADER(config.h)
 

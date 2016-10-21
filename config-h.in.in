@@ -15,6 +15,9 @@
 /* Define to 1 if you have the `sequence' library (-lsequence). */
 #undef HAVE_LIBSEQUENCE
 
+/* Define to 1 if you have the `tbb' library (-ltbb). */
+#undef HAVE_LIBTBB
+
 /* Define to 1 if you have the `z' library (-lz). */
 #undef HAVE_LIBZ
 
