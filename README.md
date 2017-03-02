@@ -116,8 +116,8 @@ There are 21 columns in the output:
 14. rmmg = [Myers and Griffiths](http://www.ncbi.nlm.nih.gov/pubmed/12586723) simplest lowest bound on Rmin
 15. nhap = Number of distinct haplotypes. [Depaulis and Veuille](http://mbe.oxfordjournals.org/content/15/12/1788)
 16. hdiv = haplotype diversity. [Depaulis and Veuille](http://mbe.oxfordjournals.org/content/15/12/1788)
-17. wallB = [Jeff Wall's](http://journals.cambridge.org/action/displayAbstract) B
-18. wallQ = [Jeff Wall's](http://journals.cambridge.org/action/displayAbstract) Q
+17. wallB = [Jeff Wall's](https://www.cambridge.org/core/journals/genetics-research/article/div-classtitlerecombination-and-the-power-of-statistical-tests-of-neutralitydiv/F66762884D13A7215EF59D45189D9E4B) B
+18. wallQ = [Jeff Wall's](https://www.cambridge.org/core/journals/genetics-research/article/div-classtitlerecombination-and-the-power-of-statistical-tests-of-neutralitydiv/F66762884D13A7215EF59D45189D9E4B) Q
 19. rosarf = [Ramos-Onsins and Rozas](http://mbe.oxfordjournals.org/content/19/12/2092) Rf statistic
 20. rosarf = [Ramos-Onsins and Rozas](http://mbe.oxfordjournals.org/content/19/12/2092) Ru statistic
 21. zns = [Kelly's](http://www.genetics.org/content/146/3/1197) Zns = average pairwise r-squared.
