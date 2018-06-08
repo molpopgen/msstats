@@ -61,5 +61,6 @@ AC_LANG_SAVE
 	  AC_CHECK_LIB(tbb,main,,[AC_MSG_ERROR([tbb runtime library not found!])])
 AC_LANG_RESTORE
 dnl AM_CONFIG_HEADER(config.h)
+AC_WARN([This software is no longer maintained.  Please use pylibseq (https://pypi.org/project/pylibseq/) instead])
 
 AC_OUTPUT
