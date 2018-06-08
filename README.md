@@ -22,6 +22,11 @@ Comments are welcome.
 
 	- Kevin Thornton <krthornt@uci.edu>
 
+# Deprecated
+
+The final release of this software is version 0.3.5, which is compatible with libsequence 1.9.2. No further updates will
+occur, and the GitHub repository is archived/read-only.
+
 #Usage
 
 [coalesent simulation] | msstats | gzip > stats.gz
